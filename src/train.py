@@ -3,6 +3,8 @@ import errno
 import pickle
 import configparser
 
+import torch
+
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
@@ -78,25 +80,16 @@ def main():
     y_candis_test = produce_canditates(df, df_test, 0)
     y_candis_test = torch.from_numpy(y_candis_test).float()
 
-    train_dataset = torch.utils.data.TensorDataset(x_train, y_train, y_candis_train)
-    train_loader = torch.utils.data.DataLoader(train_dataset, 
-                                               batch_size=batch_size, 
-                                               shuffle=True)
-
-    test_dataset = torch.utils.data.TensorDataset(x_test, y_test, y_candis_test)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size)
-
-    valid_dataset = torch.utils.data.TensorDataset(x_valid, y_valid, y_candis_valid)
-    valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size)
-    
     # Model Predict
     model = Predictor(dim_size, hidden_size, batch_size, dim_size)
     early_stop_callback = EarlyStopping(monitor='val_loss',
                                         patience=patience)
+    model.get_loader(x_train, y_train, x_valid, y_valid, x_test, y_test, 
+                       y_candis_train, y_candis_valid, y_candis_test)
     
     trainer = Trainer(early_stop_callback=early_stop_callback,
-                      max_epochs=epoch_num,
-                      gpus=[0])
+                      # gpus=[0],
+                      max_epochs=epoch_num)
 
     result = trainer.fit(model)
     print(result)

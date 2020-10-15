@@ -1,2 +1,4 @@
 lstm_lightning.py
 data/
+lightning_logs/
+src/__pycache__/

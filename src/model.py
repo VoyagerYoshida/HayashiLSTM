@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
+import pytorch_lightning as pl
+
 from diy_functions import accuracy_quiz
 
 
@@ -17,17 +19,17 @@ class Predictor(pl.LightningModule):
         self.output_layer = nn.Linear(hiddenDim, outputDim)
         self.batch_size = batchSize
 
-    def get_loader(x_train, y_train, x_valid, y_volid, x_test, y_test):
-        train_dataset = torch.utils.data.TensorDataset(x_train, y_train)
+    def get_loader(self, x_train, y_train, x_valid, y_valid, x_test, y_test, candis_train, candis_valid, candis_test):
+        train_dataset = torch.utils.data.TensorDataset(x_train, y_train, candis_train)
         self.train_loader = torch.utils.data.DataLoader(train_dataset, 
                                                         batch_size=self.batch_size, 
                                                         shuffle=True)
 
-        test_dataset = torch.utils.data.TensorDataset(x_test, y_test)
+        test_dataset = torch.utils.data.TensorDataset(x_test, y_test, candis_test)
         self.test_loader = torch.utils.data.DataLoader(test_dataset, 
                                                        batch_size=self.batch_size)
 
-        valid_dataset = torch.utils.data.TensorDataset(x_valid, y_valid)
+        valid_dataset = torch.utils.data.TensorDataset(x_valid, y_valid, candis_valid)
         self.valid_loader = torch.utils.data.DataLoader(valid_dataset, 
                                                         batch_size=self.batch_size)
 
@@ -107,13 +109,13 @@ class Predictor(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
-        return train_loader
+        return self.train_loader
 
     @pl.data_loader
     def val_dataloader(self):
-        return valid_loader
+        return self.valid_loader
 
     @pl.data_loader
     def test_dataloader(self):
-        return test_loader
+        return self.test_loader
 

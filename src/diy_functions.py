@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def produce_canditates(df_data, df_test_ids, TARGET_IDX):
+def produce_canditates(df, df_test_ids, TARGET_IDX):
     cans_vecs = []
     candi_ids = df_test_ids.iloc[:,1:]
     for i in range(len(candi_ids)):
